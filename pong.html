@@ -53,11 +53,13 @@
     }
 
     const makePaddle = (rect) => {
-      this.physics.add.existing(rect, true)
+      this.physics.add.existing(rect, false)
       this.physics.add.collider(rect, ball)
+      rect.body.immovable = true;
+      rect.body.setCollideWorldBounds(true);
     }
 
-    ball = this.physics.add.sprite(150, 150, 'eye').setInteractive().setVelocity(-100,100).setBounce(1,1);
+    ball = this.physics.add.sprite(250, 300, 'eye').setInteractive().setVelocity(-100,0).setBounce(1,1);
     topBorder = this.add.rectangle(this.cameras.main.centerX, 0, this.cameras.main.centerX * 2, 10, 0xFF0000)
     bottomBorder = this.add.rectangle(this.cameras.main.centerX, this.cameras.main.centerY * 2, this.cameras.main.centerX * 2, 10, 0xFF0000)
 
@@ -71,19 +73,34 @@
     rightPaddle = this.add.rectangle(770, this.cameras.main.centerY, 10, 150, 0xFF0000)
     let paddles = [leftPaddle, rightPaddle]
     paddles.map(makePaddle)
+    // leftPaddle.body.immovable = true;
+    // rightPaddle.body.immovable = true;
 
     // TODO: Refactor to condense
     this.input.keyboard.on('keydown-W', (key) => {
-      moveLeftPaddle(leftPaddle, 'up');
+      movePaddle(leftPaddle, 'up');
     })
     this.input.keyboard.on('keydown-S', (key) => {
-      moveLeftPaddle(leftPaddle, 'down');
+      movePaddle(leftPaddle, 'down');
     })
     this.input.keyboard.on('keydown-O', (key) => {
-      moveRightPaddle(rightPaddle, 'up');
+      movePaddle(rightPaddle, 'up');
     })
     this.input.keyboard.on('keydown-L', (key) => {
-      moveRightPaddle(rightPaddle, 'down');
+      movePaddle(rightPaddle, 'down');
+    })
+
+    this.input.keyboard.on('keyup-W', (key) => {
+      movePaddle(leftPaddle, 'stop');
+    })
+    this.input.keyboard.on('keyup-S', (key) => {
+      movePaddle(leftPaddle, 'stop');
+    })
+    this.input.keyboard.on('keyup-O', (key) => {
+      movePaddle(rightPaddle, 'stop');
+    })
+    this.input.keyboard.on('keyup-L', (key) => {
+      movePaddle(rightPaddle, 'stop');
     })
   }
 
@@ -92,27 +109,16 @@
 
   }
 
-  // TODO: Consolidate into a single move function
-  // I wanted to have a getPosition instead of leftY and rightY
-  function moveLeftPaddle(paddle, dir) {
+  function movePaddle(paddle, dir) {
     if (dir === 'up') {
-      paddle.setPosition(30, leftY -= 10)
+      paddle.body.setVelocityY(-150)
     } else if (dir === 'down') {
-      paddle.setPosition(30, leftY += 10)
-    }
-  }
-  function moveRightPaddle(paddle, dir) {
-    if (dir === 'up') {
-      paddle.setPosition(770, rightY -= 10)
-    } else if (dir === 'down') {
-      paddle.setPosition(770, rightY += 10)
+      paddle.body.setVelocityY(150)
+    } else if (dir === 'stop') {
+      paddle.body.setVelocityY(0)
     }
   }
 
-  // FIXME: 
-  // There's a collision issue where the ball passes through left paddle
-  // Paddle movements are not smooth at all
-  // Both paddles can't be moving at the same time
 
   // TODO: 
   // Refactor repetitive code
